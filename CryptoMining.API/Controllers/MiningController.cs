@@ -1,14 +1,13 @@
 ﻿using CryptoMining.API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 using static CryptoMining.API.Models.DTOs.MiningPlanDTOs;
 
 namespace CryptoMining.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class MiningController : ControllerBase
+    public class MiningController : BaseApiController
     {
         private readonly IMiningService _miningService;
 
@@ -27,9 +26,12 @@ namespace CryptoMining.API.Controllers
         [HttpGet("plans/{id}")]
         public async Task<ActionResult<MiningPlanDto>> GetPlan(int id)
         {
+            if (id <= 0)
+                return BadRequest(new { message = "Invalid plan ID" });
+
             var plan = await _miningService.GetPlanByIdAsync(id);
             if (plan == null)
-                return NotFound();
+                return NotFound(new { message = "Plan not found" });
 
             return Ok(plan);
         }
@@ -38,8 +40,16 @@ namespace CryptoMining.API.Controllers
         [HttpPost("purchase")]
         public async Task<ActionResult<UserMiningPlanDto>> PurchasePlan(PurchasePlanDto dto)
         {
-            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            var result = await _miningService.PurchasePlanAsync(userId, dto);
+            if (CurrentUserId == null)
+                return UnauthorizedWithMessage();
+
+            if (dto.Amount <= 0)
+                return BadRequest(new { message = "Amount must be greater than 0" });
+
+            if (dto.MiningPlanId <= 0)
+                return BadRequest(new { message = "Invalid mining plan ID" });
+
+            var result = await _miningService.PurchasePlanAsync(CurrentUserId.Value, dto);
 
             if (result == null)
                 return BadRequest(new { message = "Unable to purchase plan. Check balance and plan requirements." });
@@ -51,8 +61,10 @@ namespace CryptoMining.API.Controllers
         [HttpGet("my-plans")]
         public async Task<ActionResult<List<UserMiningPlanDto>>> GetMyPlans()
         {
-            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            var plans = await _miningService.GetUserPlansAsync(userId);
+            if (CurrentUserId == null)
+                return UnauthorizedWithMessage();
+
+            var plans = await _miningService.GetUserPlansAsync(CurrentUserId.Value);
             return Ok(plans);
         }
     }

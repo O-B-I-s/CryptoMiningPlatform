@@ -2,12 +2,12 @@
 using CryptoMining.API.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Org.BouncyCastle.Crypto.Generators;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using static CryptoMining.API.Models.DTOs.AuthDTOs;
 using static CryptoMining.API.Models.DTOs.UserDTOs;
+using BCryptNet = BCrypt.Net.BCrypt;
 
 namespace CryptoMining.API.Services
 {
@@ -31,7 +31,7 @@ namespace CryptoMining.API.Services
             {
                 Username = dto.Username,
                 Email = dto.Email,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
+                PasswordHash = BCryptNet.HashPassword(dto.Password),
                 WalletBalance = 0
             };
 

@@ -4,6 +4,7 @@
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<ProfitCalculationService> _logger;
+        private readonly TimeSpan _checkInterval = TimeSpan.FromMinutes(1); // Check every minute
 
         public ProfitCalculationService(
             IServiceProvider serviceProvider,
@@ -15,6 +16,9 @@
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            _logger.LogInformation("Profit Calculation Service started. Checking every {Interval} minute(s)",
+                _checkInterval.TotalMinutes);
+
             while (!stoppingToken.IsCancellationRequested)
             {
                 try
@@ -23,16 +27,16 @@
                     var miningService = scope.ServiceProvider.GetRequiredService<IMiningService>();
 
                     await miningService.CalculateProfitsAsync();
-                    _logger.LogInformation("Profit calculation completed at {Time}", DateTime.UtcNow);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error calculating profits");
+                    _logger.LogError(ex, "Error in profit calculation service");
                 }
 
-                // Run every hour (or adjust as needed)
-                await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
+                await Task.Delay(_checkInterval, stoppingToken);
             }
+
+            _logger.LogInformation("Profit Calculation Service stopped");
         }
     }
 }

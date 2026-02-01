@@ -3,19 +3,16 @@
     public class MiningPlanDTOs
     {
         public record MiningPlanDto(
-            int Id,
-            string Name,
-            string Description,
-            decimal MinDeposit,
-            decimal MaxDeposit,
-            decimal DailyReturnPercentage,
-            int DurationDays,
-            decimal HashRate
-        );
-
-
-
-
+     int Id,
+     string Name,
+     string Description,
+     decimal MinDeposit,
+     decimal MaxDeposit,
+     decimal ReturnPercentage,
+     int DurationValue,
+     string DurationUnit,
+     decimal HashRate
+ );
 
         public record PurchasePlanDto(int MiningPlanId, decimal Amount);
 
@@ -24,11 +21,13 @@
             string PlanName,
             decimal InvestedAmount,
             decimal TotalEarned,
-            decimal DailyReturn,
+            decimal ExpectedReturn,
             DateTime StartDate,
             DateTime EndDate,
             string Status,
-            decimal HashRate
+            decimal HashRate,
+            int DurationValue,
+            string DurationUnit
         );
     }
 }

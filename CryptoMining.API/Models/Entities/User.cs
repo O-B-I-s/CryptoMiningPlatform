@@ -19,9 +19,15 @@ namespace CryptoMining.API.Models.Entities
 
         public decimal WalletBalance { get; set; } = 0;
 
+        public bool IsActive { get; set; } = true;
+
+        public bool IsAdmin { get; set; } = false;
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        public bool IsActive { get; set; } = true;
+        public DateTime? UpdatedAt { get; set; }
+
+        public DateTime? LastLoginAt { get; set; }
 
         // Navigation properties
         public ICollection<UserMiningPlan> UserMiningPlans { get; set; } = new List<UserMiningPlan>();
